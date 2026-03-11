@@ -1,0 +1,34 @@
+assembly-versioning-scheme: MajorMinorPatch
+assembly-file-versioning-scheme: MajorMinorPatch
+mode: ContinuousDelivery
+tag-prefix: "v"
+major-version-bump-message: "(breaking|major):"
+minor-version-bump-message: "(feat|feature|minor):"
+patch-version-bump-message: "(fix|patch|chore|refactor|perf|docs|style|test|ci):"
+commit-message-incrementing: Enabled
+
+branches:
+  main:
+    regex: ^main$
+    mode: ContinuousDelivery
+    tag: ""
+    increment: Patch
+    prevent-increment-of-merged-branch-version: true
+    is-release-branch: true
+    is-mainline: true
+
+  pull-request:
+    regex: ^(pull|pull\-requests|pr)[/-]
+    mode: ContinuousDeployment
+    tag: PullRequest
+    increment: Inherit
+    tag-number-pattern: '[/-](?<number>\d+)'
+
+  feature:
+    regex: ^features?[/-]
+    mode: ContinuousDeployment
+    tag: alpha
+    increment: Minor
+
+ignore:
+  sha: []
