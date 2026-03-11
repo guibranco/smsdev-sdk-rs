@@ -1,85 +1,250 @@
-# 🚀 API Client Boilerplate Template for Rust 🦀  
+# smsdev-rs
 
-🏗️ **A streamlined boilerplate template to kickstart your Rust API client wrappers** (also known as **SDKs**).  
+An async Rust SDK for the [SMSDev](https://www.smsdev.com.br/en/) SMS Gateway API.
 
----
-
-## 🌟 About  
-
-This repository is a **template** to jumpstart your Rust development for **API client wrappers**.  
-It provides a solid foundation with preconfigured project structure, CI integration, and helper scripts.  
-
-🔧 **What's included?**  
-- 📦 A ready-to-use **Cargo.toml** with project placeholders.  
-- 🛠️ Scripts for quick **automated setup** (Windows & Linux/Mac).  
-- ✅ [AppVeyor](https://www.appveyor.com/) CI pipeline configuration.  
-   > 💡 **AppVeyor is free for open-source projects.** For private repositories, you can use alternatives like **GitHub Actions**, **CircleCI**, or **Azure DevOps**.  
-- 📄 Clean project layout with room for source code and documentation.  
+[![Crates.io](https://img.shields.io/crates/v/smsdev.svg)](https://crates.io/crates/smsdev)
+[![Docs.rs](https://docs.rs/smsdev/badge.svg)](https://docs.rs/smsdev)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## 🚀 Getting Started  
+## Features
 
-### ⚡ Automated Setup  
-
-> 🐧 **Now supported for Windows, Linux, and Mac environments!**  
-
-1. Click the green **"Use this template"** button at the top.  
-2. Name your new repository and clone it to your machine.  
-3. Run the setup script based on your OS:  
-   - 🪟 On Windows: Execute `initial-setup.bat` or `initial-setup.ps1` 
-   - 🐧 On Linux/Mac: Execute `initial-setup.sh`
-4. Follow the on-screen instructions and get started in seconds! 🚀  
-
----
-
-### 🛠️ Manual Setup  
-
-Would you prefer to do it step-by-step? No problem!  
-
-1. Click the green **"Use this template"** button.  
-2. Clone your newly created repository to your machine.  
-3. Clean up:  
-   - Delete this file (`README.md`) and rename `README.template.md` to `README.md`.  
-4. Update the placeholders:  
-   - **AppVeyor CI**: Edit `appveyor.yml` with your secure tokens or configure a different CI tool (GitHub Actions, CircleCI, Azure Pipelines).  
-   - **Cargo.toml**: Update the package name, version, and other metadata.  
-   - **Badges**: Fix all *{username}/{repo}* paths in `README.md`.  
-5. Add usage instructions for your API client in `README.md`.  
-6. Update `_config.yml` for GitHub Pages documentation (if needed).  
+| Method       | Description                                        |
+|--------------|----------------------------------------------------|
+| `send_sms`   | Send one or many SMS messages (batch supported)    |
+| `send_one`   | Convenience wrapper for sending a single SMS       |
+| `cancel`     | Cancel scheduled messages by ID                    |
+| `inbox`      | Query received (MO) messages                       |
+| `dlr`        | Query delivery status (DLR) of sent messages       |
+| `balance`    | Get the account SMS credit balance                 |
+| `report`     | Fetch a usage summary report by date range         |
 
 ---
 
-## 📂 Project Structure  
+## Installation
 
+Add this to your `Cargo.toml`:
+
+```toml
+[dependencies]
+smsdev = "0.1"
+tokio = { version = "1", features = ["full"] }
 ```
-📦 your-project-name  
-├── Cargo.toml               # Project metadata and dependencies  
-├── README.md                # Your main documentation  
-├── appveyor.yml             # AppVeyor CI configuration  
-├── Src/                     # Place your API client code here  
-├── Tests/                   # Add unit and integration tests here  
-└── _config.yml              # Optional GitHub Pages configuration  
-```  
 
 ---
 
-## 🛡️ License  
+## Authentication
 
-📄 Licensed under the **MIT License**.  
-This means you are free to use, modify, and distribute the code with attribution.  
-
-🔗 [View LICENSE](https://github.com/guibranco/apiclient-boilerplate-rs/blob/main/LICENSE) | [Learn about MIT](http://opensource.org/licenses/MIT)  
-
-> 🔒 Feel free to replace this with any license that best suits your project!  
+All requests are authenticated with an **API Key** (*Chave Key*).  
+You can obtain yours at: <https://painel.smsdev.com.br/configuracao/conta/perfil>
 
 ---
 
-## 🎉 Contribute & Customize  
+## Usage
 
-💬 Got ideas? Found an issue? Open an issue or contribute with a pull request!  
-Don’t forget to ⭐ **star** this repository if it helped save you time. 🚀  
+### Send a Single SMS
+
+```rust
+use smsdev::{SmsDev, models::SendSmsRequest};
+
+#[tokio::main]
+async fn main() -> smsdev::Result<()> {
+    let client = SmsDev::new("YOUR_API_KEY");
+
+    let result = client
+        .send_one(SendSmsRequest::new(
+            "YOUR_API_KEY",
+            5511988887777_u64,
+            "Hello from Rust!",
+        ))
+        .await?;
+
+    println!("Queued with id: {}", result.id);
+    Ok(())
+}
+```
+
+### Bulk Send
+
+```rust
+use smsdev::{SmsDev, models::SendSmsRequest};
+
+#[tokio::main]
+async fn main() -> smsdev::Result<()> {
+    let client = SmsDev::new("YOUR_API_KEY");
+
+    let messages = vec![
+        SendSmsRequest::new("YOUR_API_KEY", 5511988887777, "Hi Alice!"),
+        SendSmsRequest::new("YOUR_API_KEY", 5521977776666, "Hi Bob!")
+            .refer("campaign-abc"),
+    ];
+
+    let results = client.send_sms(messages).await?;
+    for r in results {
+        println!("id={} status={}", r.id, r.status);
+    }
+    Ok(())
+}
+```
+
+### Schedule a Message
+
+```rust
+use smsdev::{SmsDev, models::SendSmsRequest};
+
+#[tokio::main]
+async fn main() -> smsdev::Result<()> {
+    let client = SmsDev::new("YOUR_API_KEY");
+
+    let result = client
+        .send_one(
+            SendSmsRequest::new("YOUR_API_KEY", 5511988887777, "Reminder!")
+                .schedule_date("25/12/2025")
+                .schedule_time("09:00"),
+        )
+        .await?;
+
+    println!("Scheduled message id: {}", result.id);
+    Ok(())
+}
+```
+
+### Cancel a Scheduled Message
+
+```rust
+use smsdev::SmsDev;
+
+#[tokio::main]
+async fn main() -> smsdev::Result<()> {
+    let client = SmsDev::new("YOUR_API_KEY");
+    let results = client.cancel(vec![637849052, 637849053]).await?;
+    for r in results {
+        println!("Cancelled id={}: {}", r.id, r.description);
+    }
+    Ok(())
+}
+```
+
+### Check Delivery Status (DLR)
+
+```rust
+use smsdev::SmsDev;
+
+#[tokio::main]
+async fn main() -> smsdev::Result<()> {
+    let client = SmsDev::new("YOUR_API_KEY");
+    let statuses = client.dlr(vec![637849052]).await?;
+    for s in statuses {
+        if s.is_delivered() {
+            println!("Message delivered via {}", s.operator.unwrap_or_default());
+        } else {
+            println!("Status: {}", s.description);
+        }
+    }
+    Ok(())
+}
+```
+
+### Read Inbox (MO)
+
+```rust
+use smsdev::{SmsDev, models::InboxRequest};
+
+#[tokio::main]
+async fn main() -> smsdev::Result<()> {
+    let client = SmsDev::new("YOUR_API_KEY");
+
+    let messages = client
+        .inbox(
+            InboxRequest::new("YOUR_API_KEY")
+                .all()                          // include already-read messages
+                .date_from("01/01/2025")
+                .date_to("31/01/2025"),
+        )
+        .await?;
+
+    for msg in messages {
+        println!("[{}] from {}: {}", msg.data_read, msg.phone, msg.description);
+    }
+    Ok(())
+}
+```
+
+### Account Balance
+
+```rust
+use smsdev::SmsDev;
+
+#[tokio::main]
+async fn main() -> smsdev::Result<()> {
+    let client = SmsDev::new("YOUR_API_KEY");
+    let bal = client.balance().await?;
+    println!("Credits remaining: {}", bal.balance_as_u64().unwrap_or(0));
+    Ok(())
+}
+```
+
+### Usage Report
+
+```rust
+use smsdev::{SmsDev, models::ReportRequest};
+
+#[tokio::main]
+async fn main() -> smsdev::Result<()> {
+    let client = SmsDev::new("YOUR_API_KEY");
+    let report = client
+        .report(
+            ReportRequest::new("YOUR_API_KEY")
+                .date_from("01/01/2025")
+                .date_to("31/01/2025"),
+        )
+        .await?;
+
+    println!(
+        "Sent={} Received={} Credits used={}",
+        report.sent, report.received, report.credits_used
+    );
+    Ok(())
+}
+```
 
 ---
 
-🦀 **Happy Coding in Rust!** 🎯 
+## Error Handling
+
+All methods return `smsdev::Result<T>` which wraps [`SmsDevError`]:
+
+```rust
+use smsdev::{SmsDev, SmsDevError};
+
+#[tokio::main]
+async fn main() {
+    let client = SmsDev::new("BAD_KEY");
+    match client.balance().await {
+        Ok(b) => println!("Balance: {}", b.sms_balance),
+        Err(SmsDevError::Api { code, description }) => {
+            eprintln!("API rejected the request [{code}]: {description}")
+        }
+        Err(SmsDevError::Http(e)) => eprintln!("Network error: {e}"),
+        Err(e) => eprintln!("Other error: {e}"),
+    }
+}
+```
+
+---
+
+## Running Tests
+
+```bash
+cargo test
+```
+
+Tests use [mockito](https://crates.io/crates/mockito) to intercept HTTP calls,
+so no live API key is required.
+
+---
+
+## License
+
+MIT — see [LICENSE](LICENSE).

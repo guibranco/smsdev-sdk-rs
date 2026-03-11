@@ -1,29 +1,25 @@
 [package]
-name = "apiclient_boilerplate_rust"
+name = "smsdev"
 version = "0.1.0"
 authors = ["Guilherme Branco Stracini <guilherme@guilhermebranco.com.br>"]
 edition = "2021"
-description = "Boilerplate project for RUST API clients projects. Replace this file with Cargo.toml.template"
-repository = "https://github.com/GuilhermeStracini/apiclient-boilerplate-rs.git"
-homepage = "https://guilhermestracini.github.io/apiclient-boilerplate-rs/"
-keywords = ["rest", "client", "sdk", "{{keyword}}"]
+description = "The SMSDev client wrapper."
+repository = "https://github.com/guibranco/smsdev-sdk-rs.git"
+homepage = "http://guilherme.stracini.com.br/smsdev-sdk-rs"
+keywords = ["rest", "client", "smsdev", "sms", "smsdev-api"]
 categories = ["network-programming", "web-programming::http-client"]
 readme = "README.md"
 license = "MIT"
 
-[badges]
-appveyor = { repository = "GuilhermeStracini/apiclient-boilerplate-rs", branch = "main", service = "github" }
 
 [dependencies]
-reqwest = { version = "0.11", features = ["json"] }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
 tokio = { version = "1", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_json = "1.0"
+thiserror = "1"
+url = "2"
 
 [dev-dependencies]
-wiremock = "0.6.2"
-tokio = { version = "1", features = ["rt", "macros"] }
-claim = "0.5"
-
-[lib]
-crate-type = ["lib"]
+tokio = { version = "1", features = ["full"] }
+mockito = "1"
