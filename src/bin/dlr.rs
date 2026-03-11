@@ -95,8 +95,8 @@ async fn main() {
     match client.dlr(ids).await {
         Ok(statuses) => {
             println!(
-                "{:<14} {:<10} {:<22} {:<12} {}",
-                "Status", "Code", "Sent At", "Operator", "Raw"
+                "{:<14} {:<10} {:<22} {:<12} Raw",
+                "Status", "Code", "Sent At", "Operator"
             );
             println!("{}", "-".repeat(78));
             for s in &statuses {
