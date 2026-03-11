@@ -1,0 +1,22 @@
+name: Clippy check
+
+on:
+  workflow_dispatch:
+  pull_request:
+
+jobs:
+  clippy-check:
+    runs-on: ubuntu-latest
+    
+    steps:
+    
+      - name: Checkout repo
+        uses: actions/checkout@v6
+      
+      - name: Rustup add Clippy
+        run: rustup component add clippy
+      
+      - name: Run linter
+        uses: clechasseur/rs-clippy-check@v5
+        with:
+          args: --all-features --all-targets -- --warn clippy::all

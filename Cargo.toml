@@ -1,0 +1,29 @@
+[package]
+name = "apiclient_boilerplate_rust"
+version = "0.1.0"
+authors = ["Guilherme Branco Stracini <guilherme@guilhermebranco.com.br>"]
+edition = "2021"
+description = "Boilerplate project for RUST API clients projects. Replace this file with Cargo.toml.template"
+repository = "https://github.com/GuilhermeStracini/apiclient-boilerplate-rs.git"
+homepage = "https://guilhermestracini.github.io/apiclient-boilerplate-rs/"
+keywords = ["rest", "client", "sdk", "{{keyword}}"]
+categories = ["network-programming", "web-programming::http-client"]
+readme = "README.md"
+license = "MIT"
+
+[badges]
+appveyor = { repository = "GuilhermeStracini/apiclient-boilerplate-rs", branch = "main", service = "github" }
+
+[dependencies]
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+wiremock = "0.6.2"
+tokio = { version = "1", features = ["rt", "macros"] }
+claim = "0.5"
+
+[lib]
+crate-type = ["lib"]

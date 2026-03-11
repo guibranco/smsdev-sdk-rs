@@ -1,0 +1,29 @@
+[package]
+name = "{repository}_rust"
+version = "0.1.0"
+authors = ["{authorName} <{authorEmail}>"]
+edition = "2021"
+description = "{description}"
+repository = "https://github.com/{username}/{repository}.git"
+homepage = "https://github.com/{username}/{repository}"
+keywords = ["rest", "client", "sdk", "{keyword}"]
+categories = ["network-programming", "web-programming::http-client"]
+readme = "README.md"
+license = "MIT"
+
+[badges]
+appveyor = { repository = "{username}/{repository}", branch = "main", service = "github" }
+
+[dependencies]
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+[dev-dependencies]
+wiremock = "0.5.2"
+tokio = { version = "1", features = ["rt", "macros"] }
+claim = "0.5"
+
+[lib]
+crate-type = ["lib"]
