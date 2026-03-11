@@ -1,5 +1,5 @@
 theme: jekyll-theme-minimal
-title: API Client Boilerplate Rust SDK
-description: A repository template for RUST API client projects
-logo: https://raw.githubusercontent.com/GuilhermeStracini/apiclient-boilerplate-rs/main/logo.png
+title: SMSDev Rust client
+description: The SMSDev client for Rust projects.
+logo: https://raw.githubusercontent.com/guibranco/smsdev-sdk-rs/main/logo.png
 show_downloads: true
