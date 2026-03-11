@@ -109,8 +109,8 @@ async fn main() {
             }
             println!("{} message(s) received:\n", messages.len());
             println!(
-                "{:<22} {:<18} {:<12} {}",
-                "Date", "From", "ID (MO)", "Message"
+                "{:<22} {:<18} {:<12} Message",
+                "Date", "From", "ID (MO)"
             );
             println!("{}", "-".repeat(80));
             for msg in &messages {
